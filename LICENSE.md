@@ -29,7 +29,7 @@ UAS SkyCheck, the UAS SkyCheck logo, and SudoKodes are trademarks of
 SudoKodes LLC. No trademark rights are granted by this license.
 
 The logo and any other brand assets included in this repository (including
-`code/logos/uav_logo.png`) are **not** licensed under CC BY-NC-ND 4.0. They are
+`assets/uav_logo.png`) are **not** licensed under CC BY-NC-ND 4.0. They are
 included solely so this documentation renders as intended, and may be reproduced
 only as an unmodified part of this documentation. They may not be used to
 identify, endorse, or brand any other product or party.
