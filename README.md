@@ -299,7 +299,7 @@ Worth noting for anyone evaluating the moat: the airspace facts themselves are n
 
 ## License
 
-Documentation in this repository: [CC BY-NC-ND 4.0](LICENSE). Read it, link to it, share it with attribution. Do not sell it or publish derivative versions.
+Documentation in this repository: [CC BY-NC-ND 4.0](LICENSE.md). Read it, link to it, share it with attribution. Do not sell it or publish derivative versions.
 
 The UAS SkyCheck software and datasets are proprietary, all rights reserved, and are not licensed by this repository.
 
