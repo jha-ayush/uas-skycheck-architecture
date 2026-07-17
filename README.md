@@ -1,8 +1,44 @@
-# UAS SkyCheck: Architecture
+<div align="center">
 
-Architecture and design decisions behind [UAS SkyCheck](https://uas-skycheck.app), a production FAA Part 107 drone preflight tool.
+<img src="assets/uav_logo.png" alt="UAS SkyCheck" width="112" height="112">
+
+# UAS SkyCheck
+
+**Architecture and design decisions behind a production FAA Part 107 drone preflight tool**
+
+[![Live](https://img.shields.io/badge/live-uas--skycheck.app-4dd8ff?style=flat-square)](https://uas-skycheck.app)
+[![Repo](https://img.shields.io/badge/repo-documentation%20only-64748b?style=flat-square)](#what-is-deliberately-not-in-this-repository)
+[![Docs license](https://img.shields.io/badge/docs-CC%20BY--NC--ND%204.0-64748b?style=flat-square)](LICENSE)
+[![Software](https://img.shields.io/badge/software-proprietary-64748b?style=flat-square)](#license)
+
+</div>
+
+---
 
 **This repository is documentation only.** The source code and datasets are private and proprietary. Nothing here grants any right to the software it describes. What it does is explain how the system is built, and, more usefully, *why* it is built that way.
+
+*Last reviewed: June 2026.*
+
+## Contents
+
+- [The problem](#the-problem)
+- [The invariant that shapes everything](#the-invariant-that-shapes-everything)
+- [At a glance](#at-a-glance)
+- [System shape](#system-shape)
+- [The verdict pipeline](#the-verdict-pipeline)
+- [The cap family](#the-cap-family)
+  - [What a cap looks like to a pilot](#what-a-cap-looks-like-to-a-pilot)
+- [Data and provenance](#data-and-provenance)
+- [The polygon engine and the fail-loud gate](#the-polygon-engine-and-the-fail-loud-gate)
+- [Design decisions worth explaining](#design-decisions-worth-explaining)
+  - [0 ft is a real elevation](#0-ft-is-a-real-elevation)
+  - [Never default to green](#never-default-to-green)
+  - [Conservative drift is acceptable; optimistic drift is not](#conservative-drift-is-acceptable-optimistic-drift-is-not)
+  - [Aircraft-aware verdicts](#aircraft-aware-verdicts)
+- [Verification posture](#verification-posture)
+- [Regulatory grounding](#regulatory-grounding)
+- [What is deliberately not in this repository](#what-is-deliberately-not-in-this-repository)
+- [License](#license)
 
 ---
 
@@ -32,6 +68,22 @@ So the system is designed to fail toward "check again / authorization required,"
 - **The service refuses to start rather than serve a verdict it cannot compute.** See [the polygon engine](#the-polygon-engine-and-the-fail-loud-gate).
 
 That last one is worth pausing on. Most services are built to degrade gracefully. This one is built to degrade *loudly*, because a silently degraded preflight verdict is worse than no preflight tool at all: the pilot has already outsourced the judgment.
+
+---
+
+## At a glance
+
+| | |
+|---|---|
+| **Product** | FAA Part 107 and recreational drone preflight intelligence, [uas-skycheck.app](https://uas-skycheck.app) |
+| **Frontend** | Next.js 14 PWA on Vercel, offline-capable, installable |
+| **Backend** | FastAPI on Render, JSON API, no server-rendered HTML |
+| **Auth** | Supabase, asymmetric ES256 JWTs verified against JWKS |
+| **Data** | 14,000+ airports, 11,000+ restricted zones across 22 categories |
+| **Geometry** | Shapely with an STRtree index over 9,000+ polygon-backed zones |
+| **Scoring** | Deterministic and pure, no I/O, fully reproducible from its inputs |
+| **Tests** | 2,000+ automated, including invariant regressions |
+| **Built by** | One engineer |
 
 ---
 
@@ -104,6 +156,28 @@ Four conditions hard-cap the score at **69**: the top of CAUTION, one point belo
 | Unknown elevation | All three elevation sources failed | Elevation feeds density altitude, and missing DA suppresses a hazard warning |
 
 The rule that governs this family: **any new source of uncertainty must join it, or be argued out of it explicitly.** Uncertainty is never allowed to score silently.
+
+### What a cap looks like to a pilot
+
+An illustrative verdict where conditions are largely favorable but one input could not be resolved:
+
+```text
+Score      69 / 100   CAUTION          <- capped, not computed
+Aircraft   Mini / Nano (under 250 g)
+Altitude   400 ft AGL
+
+Penalties
+   -7   Moderate winds: 16 mph
+   -2   Suburban/populated area: moderate ground risk
+
+Safety cap
+  -22   Terrain elevation unavailable: density altitude not computed;
+        verify field elevation and expect reduced performance if high
+```
+
+Without the cap this reads 91, comfortably GOOD, and the pilot would never learn that a density altitude figure was missing rather than favorable. The cap is not a fudge factor. It is the system saying, in the breakdown and in the pilot's own language, *I could not verify this, so I will not certify it.*
+
+Note also what the breakdown does **not** do: it does not hide the cap inside the total. The deduction is itemized with its reason, so the pilot can see exactly which piece of the answer is missing and go resolve it themselves.
 
 The number 69 is not arbitrary. A capped score is not a punishment, it is a statement: *this system cannot currently certify this flight as good.* Placing the cap one point below GOOD means no capped condition can ever render green, no matter how favorable every other input is.
 
