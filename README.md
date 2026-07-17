@@ -1,23 +1,42 @@
-<div align="center">
+<p align="center">
+  <img src="assets/uav_logo.png" alt="UAS SkyCheck Logo" width="110"/>
+</p>
 
-<img src="assets/uav_logo.png" alt="UAS SkyCheck" width="112" height="112">
+<h1 align="center">UAS SkyCheck</h1>
 
-# UAS SkyCheck
+<p align="center">
+  <strong>Architecture and design decisions behind a production drone preflight tool</strong>
+</p>
 
-**Architecture and design decisions behind a production FAA Part 107 drone preflight tool**
+<p align="center">
+  <a href="https://uas-skycheck.app">
+    <img src="https://img.shields.io/badge/Live%20App-uas--skycheck.app-FF6B35?style=for-the-badge&logo=vercel&logoColor=white" alt="Live App"/>
+  </a>
+  &nbsp;
+  <img src="https://img.shields.io/badge/Repo-Documentation%20Only-64748b?style=for-the-badge" alt="Documentation Only"/>
+  &nbsp;
+  <img src="https://img.shields.io/badge/Docs-CC%20BY--NC--ND%204.0-88a8c8?style=for-the-badge" alt="Docs License"/>
+  &nbsp;
+  <img src="https://img.shields.io/badge/Software-Proprietary-e05a64?style=for-the-badge" alt="Software Proprietary"/>
+</p>
 
-[![Live](https://img.shields.io/badge/live-uas--skycheck.app-4dd8ff?style=flat-square)](https://uas-skycheck.app)
-[![Repo](https://img.shields.io/badge/repo-documentation%20only-64748b?style=flat-square)](#what-is-deliberately-not-in-this-repository)
-[![Docs license](https://img.shields.io/badge/docs-CC%20BY--NC--ND%204.0-64748b?style=flat-square)](LICENSE)
-[![Software](https://img.shields.io/badge/software-proprietary-64748b?style=flat-square)](#license)
-
-</div>
+<p align="center">
+  <a href="https://uas-skycheck.app"><strong>Try It Free</strong></a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <a href="#the-invariant-that-shapes-everything"><strong>The Invariant</strong></a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <a href="#the-cap-family"><strong>The Cap Family</strong></a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <a href="#system-shape"><strong>System Shape</strong></a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <a href="#design-decisions-worth-explaining"><strong>Design Decisions</strong></a>
+</p>
 
 ---
 
 **This repository is documentation only.** The source code and datasets are private and proprietary. Nothing here grants any right to the software it describes. What it does is explain how the system is built, and, more usefully, *why* it is built that way.
 
-*Last reviewed: June 2026.*
+*Last reviewed: July 2026.*
 
 ## Contents
 
