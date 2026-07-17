@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/uav_logo.png" alt="UAS SkyCheck Logo" width="110"/>
+  <img src="assets/uas_skycheck_logo.png" alt="UAS SkyCheck Logo" width="110"/>
 </p>
 
 <h1 align="center">UAS SkyCheck</h1>
