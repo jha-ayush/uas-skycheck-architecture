@@ -165,7 +165,7 @@ The boundary at 70 is the one that carries weight, because it is the line betwee
 
 ## The cap family
 
-Four conditions hard-cap the score at **69**: the top of CAUTION, one point below GOOD. This is the mechanism that makes a false all-clear structurally impossible rather than merely unlikely.
+Five conditions hard-cap the score at **69**: the top of CAUTION, one point below GOOD. This is the mechanism that makes a false all-clear structurally impossible rather than merely unlikely.
 
 | Cap | Fires when | Why it is not optional |
 |---|---|---|
@@ -173,6 +173,7 @@ Four conditions hard-cap the score at **69**: the top of CAUTION, one point belo
 | Class B proximity | Distance ratio to Class B airspace is within a safety margin | Grid boundaries are approximations; the edge case belongs to the aircraft, not the algorithm |
 | Stale TFR data | Live TFR fetch failed and static fallback data is in use | An absent TFR and an unfetched TFR look identical, and only one is safe |
 | Unknown elevation | All three elevation sources failed | Elevation feeds density altitude, and missing DA suppresses a hazard warning |
+| Reconstructed record | The verdict was rebuilt for a past date ("log a past flight") | Archived weather, current-not-verified airspace, and unrecoverable TFR status must never read as a confident live verdict |
 
 The rule that governs this family: **any new source of uncertainty must join it, or be argued out of it explicitly.** Uncertainty is never allowed to score silently.
 
