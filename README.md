@@ -54,6 +54,7 @@
   - [Never default to green](#never-default-to-green)
   - [Conservative drift is acceptable; optimistic drift is not](#conservative-drift-is-acceptable-optimistic-drift-is-not)
   - [Aircraft-aware verdicts](#aircraft-aware-verdicts)
+  - [Authentication fails loud, and origin is a dependency](#authentication-fails-loud-and-origin-is-a-dependency)
 - [Verification posture](#verification-posture)
 - [Regulatory grounding](#regulatory-grounding)
 - [What is deliberately not in this repository](#what-is-deliberately-not-in-this-repository)
@@ -270,6 +271,28 @@ This is the asymmetry from the top invariant applied to code architecture: dupli
 Wind tolerance is calibrated by aircraft weight class, so the same 18 mph reads as caution for a sub-250 g Mini and acceptable for a professional airframe. This was true in the scoring engine long before it was visible to pilots, which meant the verdict looked arbitrary: the tool said "high winds" and the pilot had no idea why.
 
 The comparison is now surfaced directly, with one deliberate piece of friction: a note that a heavier aircraft reading OK does **not** make the location clear to fly. A comparison view invites exactly the wrong inference ("I'd be fine on my other drone"), and wind is one input among many. Features that make a system more transparent can also make it easier to misread. Both need designing.
+
+### Authentication fails loud, and origin is a dependency
+
+The same invariant that governs the verdict, *never report a success you have not verified*, applies to sign-in, and this is where it was learned the hard way.
+
+The OAuth callback used to establish the session only when the authorization code arrived one specific way (a `?code=` query parameter). When the session came back by another valid path, it was silently dropped: the user was bounced onward **appearing signed out, with no error**. That is the auth equivalent of a false all-clear. The whole round-trip succeeded, the provider authenticated the user, and the last step threw the result away without saying so.
+
+Two design corrections followed, both echoes of the rest of the system:
+
+1. **The callback confirms a real session before it redirects, and shows an honest error if none landed.** It no longer assumes the handshake worked. This is the polygon-gate principle applied to auth: refuse to proceed as if successful when the thing you depend on did not actually happen. A visible "sign-in did not complete" is strictly better than a silent, confusing sign-out.
+2. **Authentication is treated as origin-bound infrastructure.** Sign-in depends on *which domain* the request comes from, browser storage, OAuth allowlists, and the token handshake are all scoped to an origin. Moving the site between hosts (for example, `www` to the apex) is therefore an auth-affecting change, not just a DNS one, even though nothing in the auth code is edited.
+
+The generalizable lesson: **a dependency you never edit can still break when its environment moves.** Origin is exactly that kind of invisible dependency for authentication.
+
+#### Domain-change checklist
+
+Any time the served domain changes, the following origin-bound configuration is re-verified before the change is considered done. Everything here is standard OAuth/hosting configuration; none of it is secret.
+
+- **Identity provider allowlists** (e.g. Supabase Site URL and Redirect URLs) point at the new origin.
+- **OAuth client configuration** (e.g. Google Cloud Console authorized JavaScript origins and redirect URIs) includes the new origin.
+- **Canonical tags, sitemap, and `metadataBase`** resolve to the served origin with no redirect hop (a canonical that redirects is its own, separate defect).
+- **Sign-in is tested in a private/incognito window** after the change. Incognito has no cached session or service worker, so it reproduces exactly what a new visitor sees and surfaces auth regressions immediately rather than days later.
 
 ---
 
