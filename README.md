@@ -55,6 +55,7 @@
   - [Conservative drift is acceptable; optimistic drift is not](#conservative-drift-is-acceptable-optimistic-drift-is-not)
   - [Aircraft-aware verdicts](#aircraft-aware-verdicts)
   - [Authentication fails loud, and origin is a dependency](#authentication-fails-loud-and-origin-is-a-dependency)
+  - [The log is an attestation, not a diary](#the-log-is-an-attestation-not-a-diary)
 - [Verification posture](#verification-posture)
 - [Regulatory grounding](#regulatory-grounding)
 - [What is deliberately not in this repository](#what-is-deliberately-not-in-this-repository)
@@ -293,6 +294,16 @@ Any time the served domain changes, the following origin-bound configuration is 
 - **OAuth client configuration** (e.g. Google Cloud Console authorized JavaScript origins and redirect URIs) includes the new origin.
 - **Canonical tags, sitemap, and `metadataBase`** resolve to the served origin with no redirect hop (a canonical that redirects is its own, separate defect).
 - **Sign-in is tested in a private/incognito window** after the change. Incognito has no cached session or service worker, so it reproduces exactly what a new visitor sees and surfaces auth regressions immediately rather than days later.
+
+### The log is an attestation, not a diary
+
+A flight record's value comes from being true at the moment it mattered. The only time the conditions of a flight are fully and accurately known is when the pilot is standing there deciding whether to fly. Memory decays; entering conditions later is reconstruction, and reconstruction is lossy, which is why reconstructed records are capped and badged, never presented as live.
+
+So the log captures the truth automatically at the moment of decision, then protects it:
+
+- **Immutable factual layer.** The captured conditions, score, penalties, airspace, weight class, provenance, and capture time are locked once written. An edit can never change them; editing recorded conditions would turn evidence into fiction.
+- **Editable annotation layer.** Why the pilot flew, how long, notes, outcome, and the actual flight time are the pilot's to add or change, now or later. Forgetting to annotate never costs the truth, because the truth was captured without needing the annotation.
+- **Honesty about time.** A record stores when its conditions were captured. If the logged flight time drifts materially from that, the record says so rather than letting stale conditions read as the flight's. This is the same invariant as the verdict, applied to history.
 
 ---
 
