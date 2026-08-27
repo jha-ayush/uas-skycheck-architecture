@@ -36,8 +36,6 @@
 
 **This repository is documentation only.** The source code and datasets are private and proprietary. Nothing here grants any right to the software it describes. What it does is explain how the system is built, and, more usefully, *why* it is built that way.
 
-*Last reviewed: July 2026.*
-
 ## Contents
 
 - [The problem](#the-problem)
