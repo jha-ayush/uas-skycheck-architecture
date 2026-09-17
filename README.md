@@ -68,10 +68,10 @@ Concretely, the invariant is implemented as: a fail-loud gate on the polygon eng
 | Frontend | Next.js 15 (App Router, React 18, TypeScript, Tailwind, Leaflet) on Vercel; an installable, offline-capable PWA |
 | Backend | FastAPI on Python 3.12 on Render; a JSON API with no server-rendered HTML |
 | Auth and billing | Supabase (Postgres with row-level security, Google sign-in only, ES256 JWTs verified against the project's JWKS), Stripe, Resend |
-| Data | 14,000+ airports, 11,000+ restricted zones across 22 categories, 900+ FAA facility maps, 700+ FRIAs, 30+ standing TFRs plus live NOTAMs, and a coverage polygon that bounds where the product answers at all |
+| Data | 14,000+ airports, 11,000+ restricted zones across 20+ categories, 900+ FAA facility maps, 700+ FRIAs, 30+ standing TFRs plus live NOTAMs, and a coverage polygon that bounds where the product answers at all |
 | Geometry | Shapely with an STRtree index over 9,500+ polygon-backed zones, with the honest split between surveyed outlines and bounding boxes disclosed per zone |
 | Scoring | Deterministic and pure: no I/O, every penalty and cap itemised in the response |
-| Tests | 2,800+ backend and API test functions, 800+ frontend unit tests, 47 browser flows, and 86 invariant guards that run on every push |
+| Tests | 2,900+ backend and API test functions, 850+ frontend unit tests, 50+ browser flows, and 80-odd invariant guards that run on every push |
 | Built by | One engineer |
 
 ## System shape
@@ -163,12 +163,12 @@ The number 69 is deliberate. It is the top of CAUTION and the bottom of nothing:
 
 ## Data and provenance
 
-- 14,462 airports across the FAA classes, with the class, the LAANC availability, the controlled-ring radius and, where the FAA publishes them, the tower's hours and what the airspace reverts to when it closes. A tower schedule nobody has verified is carried as absent, never as invented hours.
-- 11,263 restricted zones across 22 categories: national parks and monuments, wildlife refuges, military installations and ranges, stadiums and event venues, prisons, hospitals, state and regional parks, city ordinances, and the rest. Each carries its authority, its note to the pilot and its geometry.
-- 9,507 of those zones are polygon-backed, and the split is disclosed rather than blurred: 517 are surveyed outlines from FAA special-use airspace GeoJSON and agency shapefiles; 8,990 are bounding boxes drawn round the record's radius, which the loader serves as coarse approximations whatever the file labels them. Of 502 military operations areas, 258 have real polygons and the rest fall back to circles. The remaining zones are circles.
-- 924 FAA UAS facility maps, committed as files rather than fetched at request time, so a missing map means the FAA publishes none for that airport and never that a fetch failed. An index of 17,329 sub-400 ft cells that lie outside their airport's nominal circle carries each cell's own LAANC flag, so a ceiling of zero in a cell the ring does not cover is still found.
+- 14,000+ airports across the FAA classes, with the class, the LAANC availability, the controlled-ring radius and, where the FAA publishes them, the tower's hours and what the airspace reverts to when it closes. A tower schedule nobody has verified is carried as absent, never as invented hours.
+- 11,000+ restricted zones across 20+ categories: national parks and monuments, wildlife refuges, military installations and ranges, stadiums and event venues, prisons, hospitals, state and regional parks, city ordinances, and the rest. Each carries its authority, its note to the pilot and its geometry.
+- 9,500+ of those zones are polygon-backed, and the split is disclosed rather than blurred: a few hundred are surveyed outlines from FAA special-use airspace GeoJSON and agency shapefiles; the rest are bounding boxes drawn round the record's radius, which the loader serves as coarse approximations whatever the file labels them. About half of the military operations areas have real polygons and the rest fall back to circles. The remaining zones are circles.
+- 900+ FAA UAS facility maps, committed as files rather than fetched at request time, so a missing map means the FAA publishes none for that airport and never that a fetch failed. An index of 17,000+ sub-400 ft cells that lie outside their airport's nominal circle carries each cell's own LAANC flag, so a ceiling of zero in a cell the ring does not cover is still found.
 - A coverage polygon of United States land and the sea within 12 nautical miles, built from Natural Earth and trimmed by every neighbouring country, bounds where the product answers. A point outside it is refused with a sentence, never scored against a dataset that does not cover it.
-- 711 FAA-Recognized Identification Areas, 31 standing TFRs merged with live NOTAMs at request time, and 680 ATC contacts.
+- 700+ FAA-Recognized Identification Areas, 30+ standing TFRs merged with live NOTAMs at request time, and 600+ ATC contacts.
 
 The polygon work matters more than the counts suggest. A circle around a national park's centroid either misses the pilot standing at its edge or forbids the town next door; only the outline answers the question. The engineering that followed was mostly provenance: where a polygon came from, how accurate it is, and whether it is the outline or a box around a radius, all of which the response carries so the map can draw the difference.
 
@@ -179,9 +179,10 @@ Every dataset is pinned by a manifest that records its version, record count, si
 Zone containment runs through Shapely with an STRtree spatial index, which reduces a point-in-zone check from a scan of every polygon to a handful of candidates. The first version degraded gracefully: if Shapely was unavailable or a geometry failed to load, the engine fell back to circles and carried on. That is the wrong direction for this product. A fallback that silently widens or narrows a zone is a fallback that can produce a false all-clear, so the gate was inverted.
 
 ```
-RuntimeError: polygon engine unavailable: shapely is required and 9,507
-polygon-backed zones would silently degrade to circles. Refusing to serve
-verdicts. Install shapely or fix the geometry load; do not remove this gate.
+RuntimeError: shapely is not installed -- UAS SkyCheck refuses to start. Without it
+every polygon-backed zone would silently degrade to a radius_nm circle
+that under-covers its true boundary, risking a false all-clear. Install
+shapely>=2.0.0 (code/production/requirements.txt) and restart.
 ```
 
 The engine now refuses to serve any verdict rather than serve a verdict computed from geometry it could not load. A loud failure that takes the product down is recoverable in minutes and visible to everyone. A quiet one that keeps serving is neither.
@@ -242,8 +243,8 @@ Two lessons from operating the repository rather than writing it. A deleted file
 
 ## Verification posture
 
-- 2,867 backend and API test functions across 40 files, 824 frontend unit tests across 41 files, and 47 Playwright flows against the production site, including a sign-in flow that mints a real session for a test account and runs twice daily.
-- 86 invariant guards, each a script with a docstring that names the incident that produced it, what it checks, what it deliberately cannot catch, and its exit codes. They run on every push. Each refuses to pass on an empty or truncated walk, and the ones that could go quiet carry a floor or a self-test, so a guard that has stopped seeing anything fails rather than reports clean. Each was proven against seeded defects before it was trusted.
+- 2,900+ backend and API test functions, 850+ frontend unit tests, and 50+ Playwright flows against the production site, including a sign-in flow that mints a real session for a test account and runs twice daily.
+- 80-odd invariant guards, each a script with a docstring that names the incident that produced it, what it checks, what it deliberately cannot catch, and its exit codes. They run on every push. Each refuses to pass on an empty or truncated walk, and the ones that could go quiet carry a floor or a self-test, so a guard that has stopped seeing anything fails rather than reports clean. Each was proven against seeded defects before it was trusted.
 - The scoring function is pure, so a verdict is reproducible from its inputs; the fixture of hour-score cases runs through both the backend and the frontend implementation.
 - An export verifier runs the whole verification layer and refuses to produce an archive of a tree that fails any of it, so what is handed over is what was checked.
 - Scheduled workflows keep the world in view: a weekly refresh against the FAA's NASR cycle, a production health check every six hours, a daily basemap check that verifies a tile is a map and not a successful error page, a weekly blog-link check, and the account crons.
@@ -263,4 +264,4 @@ The source, the datasets, the guards and the tests are private. What is defensib
 
 The documentation in this repository is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/): share it with attribution, do not sell it, do not alter it. The software and the datasets it describes are proprietary and are not covered by this license.
 
-Copyright (c) 2026 Ayush Jha / SudoKodes LLC. Written by the engineer who built it; contact admin@sudokode.co.
+Copyright (c) 2026 Ayush Jha / SudoKodes LLC. Written by the engineer who built it; contact admin@sudokodes.com.

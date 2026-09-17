@@ -36,6 +36,6 @@ identify, endorse, or brand any other product or party.
 
 ## Contact
 
-Licensing inquiries: <admin@sudokode.co>
+Licensing inquiries: <admin@sudokodes.com>
 
 [cc]: https://creativecommons.org/licenses/by-nc-nd/4.0/
