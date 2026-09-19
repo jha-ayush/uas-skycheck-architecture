@@ -44,7 +44,7 @@ This repository contains documentation only. The source code and the datasets ar
 
 ## The problem
 
-A drone pilot standing in a parking lot with a quadcopter has to answer a question the FAA phrases in several hundred pages: may I fly here, now, at this height, with this aircraft? The answer depends on the class of airspace overhead, on whether a tower is open at this hour, on temporary flight restrictions that may have been published an hour ago, on national parks and stadiums and military ranges, on the wind at the altitude of the flight, on the ceiling and visibility, on daylight, and on a facility map the FAA publishes per airport that says how high LAANC will authorise in each 1/120-degree cell.
+A drone pilot standing in a parking lot with a quadcopter has to answer a question the FAA phrases in several hundred pages: may I fly here, now, at this height, with this aircraft? The answer depends on the class of airspace overhead, on whether a tower is open at this hour, on temporary flight restrictions that may have been published an hour ago, on national parks and stadiums and military ranges, on the wind at the altitude of the flight, on the ceiling and visibility, on daylight, and on a facility map the FAA publishes per airport that says how high LAANC will authorize in each 1/120-degree cell.
 
 None of those sources is hard to reach. The engineering challenge is not aggregation. It is that a tool which gathers all of that and then says "clear" is trusted precisely at the moment it is wrong, and a pilot who trusts it flies. The whole design follows from taking that seriously.
 
@@ -70,7 +70,7 @@ Concretely, the invariant is implemented as: a fail-loud gate on the polygon eng
 | Auth and billing | Supabase (Postgres with row-level security, Google sign-in only, ES256 JWTs verified against the project's JWKS), Stripe, Resend |
 | Data | 14,000+ airports, 11,000+ restricted zones across 20+ categories, 900+ FAA facility maps, 700+ FRIAs, 30+ standing TFRs plus live NOTAMs, and a coverage polygon that bounds where the product answers at all |
 | Geometry | Shapely with an STRtree index over 9,500+ polygon-backed zones, with the honest split between surveyed outlines and bounding boxes disclosed per zone |
-| Scoring | Deterministic and pure: no I/O, every penalty and cap itemised in the response |
+| Scoring | Deterministic and pure: no I/O, every penalty and cap itemized in the response |
 | Tests | 2,900+ backend and API test functions, 850+ frontend unit tests, 50+ browser flows, and 80-odd invariant guards that run on every push |
 | Built by | One engineer |
 
@@ -93,20 +93,20 @@ flowchart TD
     FE -->|"sign-in, reads under RLS"| SB["Supabase: Postgres with RLS"]
     API --> SB
     DS["Datasets: airports, zones, TFRs, facility maps, coverage, FRIAs"] --> GEO
-    EXT["FAA NOTAM API, NOAA METAR/TAF, Open-Meteo, NOAA space weather, Nominatim"] --> ORC
-    CI["CI: 86 invariant guards, tests, export verifier"] -.->|"refuses a tree that breaks a contract"| API
+    EXT["FAA TFR list and NOTAM Search, NOAA METAR/TAF, Open-Meteo, NOAA space weather, Nominatim"] --> ORC
+    CI["CI: 80-odd invariant guards, tests, export verifier"] -.->|"refuses a tree that breaks a contract"| API
     CI -.-> FE
 ```
 
 The frontend is a Next.js 15 App Router application deployed on Vercel. It is a real PWA: a service worker caches the shell and the last results by path, the manifest allows any orientation, and the app installs on a phone. The backend is a FastAPI service on Render, JSON only; the HTML renderers it once carried were retired, and the frontend owns every pixel. Supabase holds accounts, saved locations, aircraft profiles and the flight log behind row-level security; every table that the browser could once write to directly is now written only through the API. Stripe handles subscriptions; Resend sends transactional email.
 
-The frontend is disciplined about not inventing airspace. It renders what the verdict says. It does not compute an airspace class from a distance, does not pick a colour by falling through a switch, and does not fill a missing reading with a number. Three of the invariant guards exist to keep it that way, and they read the TypeScript program through the compiler rather than by pattern-matching source text.
+The frontend is disciplined about not inventing airspace. It renders what the verdict says. It does not compute an airspace class from a distance, does not pick a color by falling through a switch, and does not fill a missing reading with a number. Guards exist to keep it that way, and two of them read the TypeScript program through the compiler rather than by pattern-matching source text.
 
 ## The verdict pipeline
 
-A check runs through an orchestrator that gathers the inputs, an airspace engine that decides what applies at the point, and a scoring function that turns the gathered facts into a score. The orchestrator assigns the fly status, which is the sentence the pilot reads in the badge. There are twelve of them, in five tiers ordered by what the pilot must do: two prohibitions (a restricted zone, an active TFR), two pending-TFR statuses (a TFR that applies on a schedule and has to be confirmed), seven authorisation statuses (LAANC, a permit, a contact with the controlling authority, and their combinations), one advisory (local rules apply), and the base case, CLEAR TO FLY. The vocabulary is held identical across the orchestrator, the scoring function, the frontend and the account API by a guard, so a new status cannot be added in one place and escape the caps in another.
+A check runs through an orchestrator that gathers the inputs, an airspace engine that decides what applies at the point, and a scoring function that turns the gathered facts into a score. The orchestrator assigns the fly status, which is the sentence the pilot reads in the badge. There are thirteen of them, in five tiers ordered by what the pilot must do: two prohibitions (a restricted zone, an active TFR), two pending-TFR statuses (a TFR that applies on a schedule and has to be confirmed), seven authorization statuses (LAANC, a permit, a contact with the controlling authority, and their combinations), one advisory (local rules apply), and the base case, CLEAR TO FLY. The vocabulary is held identical across the orchestrator, the scoring function, the frontend and the account API by a guard, so a new status cannot be added in one place and escape the caps in another.
 
-The scoring function is pure: it takes the gathered data and returns a score, a band, and an itemised breakdown, with no I/O and no clock of its own. Every deduction and every cap appears in the breakdown with its reason and its category, so a pilot reading a score of 20 sees the line that set it. Two derived texts, an advisory and a briefing, are written from the same facts, and the briefing's METAR paragraph says what the verdict did with the report rather than restating the report.
+The scoring function is pure: it takes the gathered data and returns a score, a band, and an itemized breakdown, with no I/O and no clock of its own. Every deduction and every cap appears in the breakdown with its reason and its category, so a pilot reading a score of 20 sees the line that set it. Two derived texts, an advisory and a briefing, are written from the same facts, and the briefing's METAR paragraph says what the verdict did with the report rather than restating the report.
 
 ### Score bands
 
@@ -114,7 +114,7 @@ The scoring function is pure: it takes the gathered data and returns a score, a 
 |---|---|---|
 | EXCELLENT | 85 to 100 | Every input reported, nothing caps the score |
 | GOOD | 70 to 84 | Minor deductions, or local rules to verify |
-| CAUTION | 50 to 69 | An authorisation to obtain, a TFR to confirm, or an input the verdict could not get |
+| CAUTION | 50 to 69 | An authorization to obtain, a TFR to confirm, or an input the verdict could not get |
 | MARGINAL | 30 to 49 | Conditions at the edge of what the aircraft and the rules allow |
 | POOR | 0 to 29 | Flight is prohibited here, or conditions are unflyable |
 
@@ -124,7 +124,7 @@ The band boundaries are stated once on the backend and once in a frontend module
 
 A cap is a ceiling on the score that fires when the verdict is not entitled to read well, however good the weather is. Caps do not stack: each one holds the score at or below its value and appears in the breakdown with its reason. There are two kinds.
 
-The verdict caps follow the fly status. A prohibition holds the score at 20, in POOR, not at zero, so that the weather and daylight deductions still show through for a pilot reading why a place is closed. A TFR that applies on a schedule, and an authorisation, permit or contact that must be obtained first, hold the score at 69, the top of CAUTION: the pilot has an unresolved obligation either way. Local rules that must be verified hold the score at 84, the top of GOOD, which removes a false EXCELLENT without diluting the CAUTION signal that authorisations depend on.
+The verdict caps follow the fly status. A prohibition holds the score at 20, in POOR, not at zero, so that the weather and daylight deductions still show through for a pilot reading why a place is closed. A TFR that applies on a schedule, and an authorization, permit or contact that must be obtained first, hold the score at 69, the top of CAUTION: the pilot has an unresolved obligation either way. Local rules that must be verified hold the score at 84, the top of GOOD, which removes a false EXCELLENT without diluting the CAUTION signal that authorizations depend on.
 
 The uncertainty caps follow the inputs, and they all use the same value, 69, because none of them is evidence of a hazard: each is an input the verdict needed and did not get.
 
@@ -139,7 +139,7 @@ The uncertainty caps follow the inputs, and they all use the same value, 69, bec
 | Daylight not computed | Civil twilight could not be derived | 14 CFR 107.29 turns on it |
 | Space weather unverified | The Kp feed did not answer, the reading is a forecast rather than a measurement, or the last measurement is over six hours old | GPS and compass conditions are unconfirmed |
 | Stale TFR data | The live NOTAM feed could not be read and only the static list applies | A TFR issued an hour ago is exactly what the static list lacks |
-| Class B proximity | The point lies within a modelled ring that may be undersized | The modelled 5 NM ring is a model; near its edge the truth may be inside |
+| Class B proximity | The point lies within a modeled ring that may be undersized | The modeled 5 NM ring is a model; near its edge the truth may be inside |
 | Reconstructed record | A past flight is being scored from archived rather than observed inputs | The record is an attestation and says so |
 
 One further cap is not an uncertainty cap: a visibility that WAS reported and is below the regulatory minimum holds the score in MARGINAL, at 49 or 39 depending on how far below.
@@ -165,9 +165,9 @@ The number 69 is deliberate. It is the top of CAUTION and the bottom of nothing:
 
 - 14,000+ airports across the FAA classes, with the class, the LAANC availability, the controlled-ring radius and, where the FAA publishes them, the tower's hours and what the airspace reverts to when it closes. A tower schedule nobody has verified is carried as absent, never as invented hours.
 - 11,000+ restricted zones across 20+ categories: national parks and monuments, wildlife refuges, military installations and ranges, stadiums and event venues, prisons, hospitals, state and regional parks, city ordinances, and the rest. Each carries its authority, its note to the pilot and its geometry.
-- 9,500+ of those zones are polygon-backed, and the split is disclosed rather than blurred: a few hundred are surveyed outlines from FAA special-use airspace GeoJSON and agency shapefiles; the rest are bounding boxes drawn round the record's radius, which the loader serves as coarse approximations whatever the file labels them. About half of the military operations areas have real polygons and the rest fall back to circles. The remaining zones are circles.
+- 9,500+ of those zones are polygon-backed, and the split is disclosed rather than blurred: several hundred are surveyed outlines from FAA special-use airspace GeoJSON and agency shapefiles; the rest are bounding boxes drawn around the record's radius, which the loader serves as coarse approximations whatever the file labels them. About half of the military operations areas have real polygons and the rest fall back to circles. The remaining zones are circles.
 - 900+ FAA UAS facility maps, committed as files rather than fetched at request time, so a missing map means the FAA publishes none for that airport and never that a fetch failed. An index of 17,000+ sub-400 ft cells that lie outside their airport's nominal circle carries each cell's own LAANC flag, so a ceiling of zero in a cell the ring does not cover is still found.
-- A coverage polygon of United States land and the sea within 12 nautical miles, built from Natural Earth and trimmed by every neighbouring country, bounds where the product answers. A point outside it is refused with a sentence, never scored against a dataset that does not cover it.
+- A coverage polygon of United States land and the sea within 12 nautical miles, built from Natural Earth and trimmed by every neighboring country, bounds where the product answers. A point outside it is refused with a sentence, never scored against a dataset that does not cover it.
 - 700+ FAA-Recognized Identification Areas, 30+ standing TFRs merged with live NOTAMs at request time, and 600+ ATC contacts.
 
 The polygon work matters more than the counts suggest. A circle around a national park's centroid either misses the pilot standing at its edge or forbids the town next door; only the outline answers the question. The engineering that followed was mostly provenance: where a polygon came from, how accurate it is, and whether it is the outline or a box around a radius, all of which the response carries so the map can draw the difference.
@@ -193,10 +193,10 @@ Most defects that reached production were not wrong code in one place. They were
 
 - The required-field contract. Nine fields of the check response, among them the LAANC flag, the altitude ceiling, the restricted-zone flags, the TFR staleness flag and the coordinates, are required. The client refuses a response missing any of them with a sentence that names the field, rather than rendering a partial result. A response with no coordinates once drew the map at 0, 0 in the Gulf of Guinea under a verdict for the real location.
 - The null contract. A weather reading is a number or null, never a defaulted zero, from the observation parser through the response type to every component that displays it. The frontend's `?? 0` fallbacks were removed one by one and a guard now refuses a new one on any reading.
-- The fly-status parity. The strings the orchestrator assigns, the sets the scoring function caps by, the frontend's badge tables and the account API's validation are held equal, and the colour beside each verdict is held to the one paired with it at assignment.
+- The fly-status parity. The strings the orchestrator assigns, the sets the scoring function caps by, the frontend's badge tables and the account API's validation are held equal, and the color beside each verdict is held to the one paired with it at assignment.
 - The score-band and hour-score parities, described above, between the backend ladder and the two frontend modules that must agree with it.
 - The response-field readership. A guard reads the typed response and the components and fails if a field the backend sends is read by nothing, which is how a flag that was always set and never displayed is found.
-- The state-token roles. The design system has four colour families, safe, warn, danger and stale, with the roles each may play; a guard reads the components through the TypeScript program and refuses a token used in a role it does not have, so a purple cannot become the colour of danger by accident.
+- The state-token roles. The design system has four color families, safe, warn, danger and stale, with the roles each may play; a guard reads the components through the TypeScript program and refuses a token used in a role it does not have, so a purple cannot become the color of danger by accident.
 - The documentation counts. Every number in prose that describes the tree (guards, tests, flows, dataset records) is bound to the tree by a guard, after the third time a hand-typed count went stale.
 
 ## Design decisions worth explaining
@@ -207,7 +207,7 @@ The elevation lookup once returned 0 on failure, and 0 was then treated as "at s
 
 ### Never default to green
 
-A colour that falls through a switch statement to its last case is a colour that will one day paint a prohibition green. The frontend was audited for every place a status was mapped to a colour and every fallthrough was replaced with an explicit mapping whose completeness a test asserts. Green is a value the backend has to send; the frontend never assumes it.
+A color that falls through a switch statement to its last case is a color that will one day paint a prohibition green. The frontend was audited for every place a status was mapped to a color and every fallthrough was replaced with an explicit mapping whose completeness a test asserts. Green is a value the backend has to send; the frontend never assumes it.
 
 ### Unknown is not zero
 
@@ -216,6 +216,14 @@ A reading that was not reported was once displayed as if it had been reported as
 ### Conservative drift is acceptable; optimistic drift is not
 
 The weather summary chips on the frontend are computed from the same readings the backend scored, and could in principle disagree with it. That is tolerated in one direction only: the chips may be more cautious than the verdict, never less. The thresholds that matter, the wind ladder by aircraft weight class among them, are sent by the backend and bound by a guard so that the frontend cannot hold a more permissive copy.
+
+### The nearest airport is not always the one that reports the weather
+
+The METAR that anchors a verdict was taken from the nearest airport in the dataset. In a city that can be a heliport a mile away that files no observation at all, so the verdict carried no METAR while a reporting field with a fresh one sat a few miles further out. Station selection now prefers, in order, the airport whose airspace the verdict is about, the dominant controlled airport nearby, and the nearest field of a class that reports weather within 15 NM, before it falls back to the nearest airport of any kind. The response names the station and its distance, so a pilot can see which field the observation belongs to.
+
+### A live feed that refuses is retried once, and named when it fails
+
+Temporary flight restrictions come from the FAA's own TFR list first and from the FAA's NOTAM Search second, read in that order until one answers whole. NOTAM Search sits behind an edge that sometimes refuses a request outright and accepts the identical request a moment later, so a refusal there is retried once after a short pause, never a third time, and never for an error that means the request itself was wrong. When neither feed answers, the verdict says so and takes the stale-TFR cap; the static list still applies, but never in silence. The production health check asks the same service the same way from its own side, with the same headers and the same retry, so a change on the FAA's end is noticed by a workflow before it is noticed by a pilot.
 
 ### Aircraft-aware verdicts
 
@@ -227,7 +235,7 @@ A closed tower turns Class D into Class E or G, and on the strength of a single 
 
 ### No LAANC provider is named
 
-The FAA approves the service suppliers that grant LAANC authorisations, and the list changes; one of the four providers the verdict once recommended has since wound down. Pilot-facing text now links the FAA's list and names no company, in the app and in every blog post, and a guard refuses a new mention. For the same reason the FAA's B4UFLY is described as a service the FAA delivers through approved apps, which is what it has been since February 2024, not as an FAA app.
+The FAA approves the service suppliers that grant LAANC authorizations, and the list changes; one of the four providers the verdict once recommended has since wound down. Pilot-facing text now links the FAA's list and names no company, in the app and in every blog post, and a guard refuses a new mention. For the same reason the FAA's B4UFLY is described as a service the FAA delivers through approved apps, which is what it has been since February 2024, not as an FAA app.
 
 ### Authentication fails loud, and origin is a dependency
 
@@ -235,7 +243,7 @@ The OAuth callback once redirected on any outcome, which meant a failed sign-in 
 
 ### The log is an attestation, not a diary
 
-A flight record is most valuable when it is a record of what the pilot was told before flying, made at the time. The log has three layers: an immutable factual layer written from the verdict at check time; an editable annotation layer for what the pilot adds afterwards; and honesty about time, so a record reconstructed later from archived inputs is marked as reconstructed, scored with the reconstruction cap, and drawn in its own colour. A verdict the pilot did not see before flying is never shown as one they did.
+A flight record is most valuable when it is a record of what the pilot was told before flying, made at the time. The log has three layers: an immutable factual layer written from the verdict at check time; an editable annotation layer for what the pilot adds afterwards; and honesty about time, so a record reconstructed later from archived inputs is marked as reconstructed, scored with the reconstruction cap, and drawn in its own color. A verdict the pilot did not see before flying is never shown as one they did.
 
 ### Deletions are guarded, and counts are bound
 
@@ -243,18 +251,18 @@ Two lessons from operating the repository rather than writing it. A deleted file
 
 ## Verification posture
 
-- 2,900+ backend and API test functions, 850+ frontend unit tests, and 50+ Playwright flows against the production site, including a sign-in flow that mints a real session for a test account and runs twice daily.
+- 2,900+ backend and API test functions, 850+ frontend unit tests, and 50+ Playwright flows against the production site on every push, plus signed-in flows, run on demand, that mint a real session for a dedicated test account and exercise the paid tabs.
 - 80-odd invariant guards, each a script with a docstring that names the incident that produced it, what it checks, what it deliberately cannot catch, and its exit codes. They run on every push. Each refuses to pass on an empty or truncated walk, and the ones that could go quiet carry a floor or a self-test, so a guard that has stopped seeing anything fails rather than reports clean. Each was proven against seeded defects before it was trusted.
 - The scoring function is pure, so a verdict is reproducible from its inputs; the fixture of hour-score cases runs through both the backend and the frontend implementation.
 - An export verifier runs the whole verification layer and refuses to produce an archive of a tree that fails any of it, so what is handed over is what was checked.
-- Scheduled workflows keep the world in view: a weekly refresh against the FAA's NASR cycle, a production health check every six hours, a daily basemap check that verifies a tile is a map and not a successful error page, a weekly blog-link check, and the account crons.
+- Scheduled workflows keep the world in view: a weekly refresh against the FAA's NASR cycle that opens a pull request when a cycle changes, a production health check every six hours that also asks the FAA's NOTAM Search from its own side so a refused feed is seen before a pilot sees it, a daily basemap check that verifies a tile is a map and not a successful error page, a weekly blog-link check, and the account crons.
 - The tests are audited as well as run. A block of elevation tests that had been passing were found to be passing for the wrong reason, because the sentinel they asserted against was the value they were meant to reject.
 
 ## Regulatory grounding
 
 The product's claims are grounded in the regulations they restate: 14 CFR 107.51 for the 400 ft ceiling and the visibility and cloud-clearance minimums, 107.29 for civil twilight and night operations, 107.3 for definitions, and 49 U.S.C. 44809 for the recreational exception and its conditions. Where the FAA publishes the authoritative list or map, the app links it rather than restating it: the LAANC provider list, the B4UFLY service, the DroneZone portal, tfr.faa.gov for TFRs.
 
-UAS SkyCheck is a preflight planning aid. It does not grant authorisation, replace a NOTAM briefing, or stand in for the pilot's own responsibility under Part 107 or the recreational exception, and it says so on the pages where a pilot might otherwise assume it does.
+UAS SkyCheck is a preflight planning aid. It does not grant authorization, replace a NOTAM briefing, or stand in for the pilot's own responsibility under Part 107 or the recreational exception, and it says so on the pages where a pilot might otherwise assume it does.
 
 ## What is deliberately not in this repository
 
