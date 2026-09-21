@@ -252,7 +252,7 @@ Two lessons from operating the repository rather than writing it. A deleted file
 
 ## Verification posture
 
-- 2,900+ backend and API test functions, 850+ frontend unit tests, and 50+ Playwright flows against the production site on every push, plus signed-in flows, run on demand, that mint a real session for a dedicated test account and exercise the paid tabs.
+- 2,900+ backend and API test functions, 850+ frontend unit tests, and 50+ Playwright flows against the production site on every push, plus signed-in flows that exercise the paid tabs as a pilot would see them.
 - 80-odd invariant guards, each a script with a docstring that names the incident that produced it, what it checks, what it deliberately cannot catch, and its exit codes. They run on every push. Each refuses to pass on an empty or truncated walk, and the ones that could go quiet carry a floor or a self-test, so a guard that has stopped seeing anything fails rather than reports clean. Each was proven against seeded defects before it was trusted.
 - The scoring function is pure, so a verdict is reproducible from its inputs; the fixture of hour-score cases runs through both the backend and the frontend implementation.
 - An export verifier runs the whole verification layer and refuses to produce an archive of a tree that fails any of it, so what is handed over is what was checked.
