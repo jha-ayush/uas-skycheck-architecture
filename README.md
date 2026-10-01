@@ -244,7 +244,7 @@ The OAuth callback once redirected on any outcome, which meant a failed sign-in 
 
 ### The log is an attestation, not a diary
 
-A flight record is most valuable when it is a record of what the pilot was told before flying, made at the time. The log has three layers: an immutable factual layer written from the verdict at check time; an editable annotation layer for what the pilot adds afterwards; and honesty about time, so a record reconstructed later from archived inputs is marked as reconstructed, scored with the reconstruction cap, and drawn in its own color. A verdict the pilot did not see before flying is never shown as one they did.
+A flight record is most valuable when it is a record of what the pilot was told before flying, made at the time. The log has three layers: an immutable factual layer written from the verdict at check time; an editable annotation layer for what the pilot adds afterwards; and honesty about time, so a record reconstructed later from archived inputs is marked as reconstructed, scored with the reconstruction cap, and drawn in its own color. A verdict the pilot did not see before flying is never shown as one they did. Every signed-in pilot keeps a log; the plans differ in how many entries it holds and in whether a past flight can be reconstructed into it, never in whether the record exists, and the sizes the pricing page states are the sizes the API enforces, held equal by a guard that reads both.
 
 ### Deletions are guarded, and counts are bound
 
