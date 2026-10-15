@@ -124,7 +124,7 @@ The band boundaries are stated once on the backend and once in a frontend module
 
 A cap is a ceiling on the score that fires when the verdict is not entitled to read well, however good the weather is. Caps do not stack: each one holds the score at or below its value and appears in the breakdown with its reason. There are two kinds.
 
-The verdict caps follow the fly status. A prohibition holds the score at 20, in POOR, not at zero, so that the weather and daylight deductions still show through for a pilot reading why a place is closed. A TFR that applies on a schedule, and an authorization, permit or contact that must be obtained first, hold the score at 69, the top of CAUTION: the pilot has an unresolved obligation either way. Local rules that must be verified hold the score at 84, the top of GOOD, which removes a false EXCELLENT without diluting the CAUTION signal that authorizations depend on.
+The verdict caps follow the fly status. A prohibition holds the score at 20, in POOR, not at zero, so that the weather and daylight deductions still show through for a pilot reading why a place is closed. A TFR that applies on a schedule, and an authorization, permit or contact that must be obtained first, hold the score at 65, inside CAUTION and four points under the uncertainty caps: the pilot has an unresolved obligation either way, and a known blocker ranks below an input the verdict could not get. Local rules that must be verified hold the score at 84, the top of GOOD, which removes a false EXCELLENT without diluting the CAUTION signal that authorizations depend on.
 
 The uncertainty caps follow the inputs, and they all use the same value, 69, because none of them is evidence of a hazard: each is an input the verdict needed and did not get.
 
@@ -149,17 +149,17 @@ The rule that governs the family is that a cap is added by adding a row to the f
 ### What a cap looks like to a pilot
 
 ```
-Score 69 / 100  ·  CAUTION
+Score 65 / 100  ·  CAUTION
 
   -6   Wind 14 mph gusting 21 mph at flight altitude for this aircraft class
   -3   Ceiling 3,500 ft
- -22   Authorization required before flight - conditions alone do not clear this location
+ -26   Authorization required before flight - conditions alone do not clear this location
 
 LAANC REQUIRED
 Class D, tower open. The FAA's list of LAANC providers is linked; this app names none of them.
 ```
 
-The number 69 is deliberate. It is the top of CAUTION and the bottom of nothing: a capped score sits exactly where the pilot cannot mistake it for GOOD and the breakdown says which line put it there. The cap is never hidden inside a smaller number.
+The numbers are deliberate. A verdict cap sits at 65 and an uncertainty cap at 69, the top of CAUTION: both are where the pilot cannot mistake the score for GOOD, the verdict cap sits under the uncertainty cap because an obligation not yet met outranks an input not yet read, and the breakdown says which line put the score there. The cap is never hidden inside a smaller number.
 
 ## Data and provenance
 
