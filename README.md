@@ -126,7 +126,7 @@ A cap is a ceiling on the score that fires when the verdict is not entitled to r
 
 The verdict caps follow the fly status. A prohibition holds the score at 20, in POOR, not at zero, so that the weather and daylight deductions still show through for a pilot reading why a place is closed. A TFR that applies on a schedule, and an authorization, permit or contact that must be obtained first, hold the score at 65, inside CAUTION and four points under the uncertainty caps: the pilot has an unresolved obligation either way, and a known blocker ranks below an input the verdict could not get. Local rules that must be verified hold the score at 84, the top of GOOD, which removes a false EXCELLENT without diluting the CAUTION signal that authorizations depend on.
 
-The uncertainty caps follow the inputs, and they all use the same value, 69, because none of them is evidence of a hazard: each is an input the verdict needed and did not get.
+The uncertainty caps follow the inputs, and they all use the same value, 68, because none of them is evidence of a hazard: each is an input the verdict needed and did not get.
 
 | Cap | Fires when | Why it is not optional |
 |---|---|---|
@@ -159,7 +159,7 @@ LAANC REQUIRED
 Class D, tower open. The FAA's list of LAANC providers is linked; this app names none of them.
 ```
 
-The numbers are deliberate. A verdict cap sits at 65 and an uncertainty cap at 69, the top of CAUTION: both are where the pilot cannot mistake the score for GOOD, the verdict cap sits under the uncertainty cap because an obligation not yet met outranks an input not yet read, and the breakdown says which line put the score there. The cap is never hidden inside a smaller number.
+The numbers are deliberate. A verdict cap sits at 65 and an uncertainty cap at 68, both inside CAUTION and under its top: both are where the pilot cannot mistake the score for GOOD, the verdict cap sits under the uncertainty cap because an obligation not yet met outranks an input not yet read, and the breakdown says which line put the score there. The cap is never hidden inside a smaller number.
 
 ## Data and provenance
 
